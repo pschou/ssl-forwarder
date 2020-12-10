@@ -32,27 +32,36 @@ func main() {
 	}
 	var listen = flag.String("listen", ":7443", "Listen address for forwarder")
 	var target = flag.String("target", "127.0.0.1:443", "Sending address for forwarder")
-	var cert = flag.String("cert", "/etc/pki/server.pem", "File to load with CERT")
-	var key = flag.String("key", "/etc/pki/server.pem", "File to load with KEY")
+	var cert_file = flag.String("cert", "/etc/pki/server.pem", "File to load with CERT")
+	var key_file = flag.String("key", "/etc/pki/server.pem", "File to load with KEY")
 	var root = flag.String("ca", "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem", "File to load with ROOT CAs")
+	var tls_enabled = flag.Bool("tls", true, "Enable listener TLS")
 	flag.Parse()
 
-	target_addr = *target
-	var l net.Listener
-	var err error
-	keypair, err = tls.LoadX509KeyPair(*cert, *key)
+	cert, err := tls.LoadX509KeyPair(*cert_file, *key_file)
 	if err != nil {
-		log.Fatalf("failed to loadkeys: %s", err)
+		log.Fatalf("failed to loadkey pair: %s", err)
 	}
 	rootpool, err = LoadCertficatesFromFile(*root)
 	if err != nil {
 		log.Fatalf("failed to load CA: %s", err)
 	}
-	config := tls.Config{Certificates: []tls.Certificate{keypair}, RootCAs: rootpool}
-	config.Rand = rand.Reader
-	if l, err = tls.Listen("tcp", *listen, &config); err != nil {
-		log.Fatal(err)
+
+	var l net.Listener
+	if *tls_enabled {
+		config := tls.Config{Certificates: []tls.Certificate{cert}, RootCAs: rootpool}
+		config.Rand = rand.Reader
+		if l, err = tls.Listen("tcp", *listen, &config); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		var err error
+		if l, err = net.Listen("tcp", *listen); err != nil {
+			log.Fatal(err)
+		}
 	}
+
+	target_addr = *target
 
 	defer l.Close()
 	for {
