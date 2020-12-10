@@ -36,7 +36,7 @@ func main() {
 	var key_file = flag.String("key", "/etc/pki/server.pem", "File to load with KEY")
 	var root = flag.String("ca", "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem", "File to load with ROOT CAs")
 	var tls_enabled = flag.Bool("tls", true, "Enable listener TLS")
-	var tls_verify = flag.Bool("tls_verify", true, "Verify TLS")
+	var tls_verify = flag.Bool("tls_verify", true, "Verify TLS or disable all checks")
 	var tls_host = flag.String("host", "", "Hostname to verify outgoing connection with")
 	flag.Parse()
 
