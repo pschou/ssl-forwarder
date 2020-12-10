@@ -36,31 +36,37 @@ func main() {
 	var key_file = flag.String("key", "/etc/pki/server.pem", "File to load with KEY")
 	var root = flag.String("ca", "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem", "File to load with ROOT CAs")
 	var tls_enabled = flag.Bool("tls", true, "Enable listener TLS")
+	var tls_verify = flag.Bool("tls_verify", true, "Verify TLS")
 	flag.Parse()
 
-	cert, err := tls.LoadX509KeyPair(*cert_file, *key_file)
-	if err != nil {
-		log.Fatalf("failed to loadkey pair: %s", err)
-	}
+	var err error
 	rootpool, err = LoadCertficatesFromFile(*root)
 	if err != nil {
 		log.Fatalf("failed to load CA: %s", err)
 	}
 
+	cert, err := tls.LoadX509KeyPair(*cert_file, *key_file)
+	if err != nil {
+		log.Fatalf("failed to loadkey pair: %s", err)
+	}
+
 	var l net.Listener
 	if *tls_enabled {
-		config := tls.Config{Certificates: []tls.Certificate{cert}, RootCAs: rootpool}
+		config := tls.Config{Certificates: []tls.Certificate{cert}, RootCAs: rootpool, ClientCAs: rootpool, InsecureSkipVerify: *tls_verify == false}
 		config.Rand = rand.Reader
+		fmt.Println("TLS Listening on", *listen)
 		if l, err = tls.Listen("tcp", *listen, &config); err != nil {
 			log.Fatal(err)
 		}
 	} else {
 		var err error
+		fmt.Println("Listening on", *listen)
 		if l, err = net.Listen("tcp", *listen); err != nil {
 			log.Fatal(err)
 		}
 	}
 
+	fmt.Println("Target set to", *target)
 	target_addr = *target
 
 	defer l.Close()
@@ -72,7 +78,7 @@ func main() {
 
 		go func(c net.Conn) {
 			defer c.Close()
-			config := tls.Config{Certificates: []tls.Certificate{keypair}, RootCAs: rootpool}
+			config := tls.Config{Certificates: []tls.Certificate{keypair}, RootCAs: rootpool, ClientCAs: rootpool, InsecureSkipVerify: *tls_verify == false}
 			remote, err := tls.Dial("tcp", target_addr, &config)
 			if err != nil {
 				log.Println("dialing endpoint:", target_addr, "error:", err)
@@ -86,19 +92,26 @@ func main() {
 }
 
 func LoadCertficatesFromFile(path string) (*x509.CertPool, error) {
-	pool := x509.NewCertPool()
 	raw, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
 
+	pool := x509.NewCertPool()
+	fmt.Println("Loading CA certs...")
 	for {
 		block, rest := pem.Decode(raw)
 		if block == nil {
 			break
 		}
 		if block.Type == "CERTIFICATE" {
-			pool.AppendCertsFromPEM(block.Bytes)
+			cert, err := x509.ParseCertificate(block.Bytes)
+			if err != nil {
+				fmt.Println("warning: error parsing CA cert", err)
+				continue
+			}
+			fmt.Println(" ", cert.Subject)
+			pool.AddCert(cert)
 		}
 		raw = rest
 	}
