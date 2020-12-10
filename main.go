@@ -37,6 +37,7 @@ func main() {
 	var root = flag.String("ca", "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem", "File to load with ROOT CAs")
 	var tls_enabled = flag.Bool("tls", true, "Enable listener TLS")
 	var tls_verify = flag.Bool("tls_verify", true, "Verify TLS")
+	var tls_host = flag.String("host", "", "Hostname to verify outgoing connection with")
 	flag.Parse()
 
 	var err error
@@ -52,7 +53,8 @@ func main() {
 
 	var l net.Listener
 	if *tls_enabled {
-		config := tls.Config{Certificates: []tls.Certificate{cert}, RootCAs: rootpool, ClientCAs: rootpool, InsecureSkipVerify: *tls_verify == false}
+		config := tls.Config{Certificates: []tls.Certificate{cert}, RootCAs: rootpool,
+			ClientCAs: rootpool, InsecureSkipVerify: *tls_verify == false, ServerName: *tls_host}
 		config.Rand = rand.Reader
 		fmt.Println("TLS Listening on", *listen)
 		if l, err = tls.Listen("tcp", *listen, &config); err != nil {
@@ -78,7 +80,8 @@ func main() {
 
 		go func(c net.Conn) {
 			defer c.Close()
-			config := tls.Config{Certificates: []tls.Certificate{keypair}, RootCAs: rootpool, ClientCAs: rootpool, InsecureSkipVerify: *tls_verify == false}
+			config := tls.Config{Certificates: []tls.Certificate{keypair}, RootCAs: rootpool,
+				ClientCAs: rootpool, InsecureSkipVerify: *tls_verify == false, ServerName: *tls_host}
 			remote, err := tls.Dial("tcp", target_addr, &config)
 			if err != nil {
 				log.Println("dialing endpoint:", target_addr, "error:", err)
