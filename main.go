@@ -24,6 +24,7 @@ var target_addr = ""
 var DNSCache = make(map[string]DNS, 0)
 var keypair tls.Certificate
 var rootpool *x509.CertPool
+var debug = false
 
 func main() {
 	flag.Usage = func() {
@@ -38,37 +39,45 @@ func main() {
 	var tls_enabled = flag.Bool("tls", true, "Enable listener TLS")
 	var tls_verify = flag.Bool("tls_verify", true, "Verify TLS or disable all checks")
 	var tls_host = flag.String("host", "", "Hostname to verify outgoing connection with")
+	var verbose = flag.Bool("v", false, "Verbose output")
 	flag.Parse()
 
 	var err error
+	debug = *verbose
 	rootpool, err = LoadCertficatesFromFile(*root)
 	if err != nil {
 		log.Fatalf("failed to load CA: %s", err)
 	}
 
-	cert, err := tls.LoadX509KeyPair(*cert_file, *key_file)
+	keypair, err = tls.LoadX509KeyPair(*cert_file, *key_file)
 	if err != nil {
 		log.Fatalf("failed to loadkey pair: %s", err)
 	}
 
 	var l net.Listener
 	if *tls_enabled {
-		config := tls.Config{Certificates: []tls.Certificate{cert}, RootCAs: rootpool,
+		config := tls.Config{Certificates: []tls.Certificate{keypair}, RootCAs: rootpool,
 			ClientCAs: rootpool, InsecureSkipVerify: *tls_verify == false, ServerName: *tls_host}
 		config.Rand = rand.Reader
-		fmt.Println("TLS Listening on", *listen)
+		if debug {
+			fmt.Println("TLS Listening on", *listen)
+		}
 		if l, err = tls.Listen("tcp", *listen, &config); err != nil {
 			log.Fatal(err)
 		}
 	} else {
 		var err error
-		fmt.Println("Listening on", *listen)
+		if debug {
+			fmt.Println("Listening on", *listen)
+		}
 		if l, err = net.Listen("tcp", *listen); err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	fmt.Println("Target set to", *target)
+	if debug {
+		fmt.Println("Target set to", *target)
+	}
 	target_addr = *target
 
 	defer l.Close()
@@ -101,7 +110,9 @@ func LoadCertficatesFromFile(path string) (*x509.CertPool, error) {
 	}
 
 	pool := x509.NewCertPool()
-	fmt.Println("Loading CA certs...")
+	if debug {
+		fmt.Println("Loading CA certs...")
+	}
 	for {
 		block, rest := pem.Decode(raw)
 		if block == nil {
@@ -113,7 +124,9 @@ func LoadCertficatesFromFile(path string) (*x509.CertPool, error) {
 				fmt.Println("warning: error parsing CA cert", err)
 				continue
 			}
-			fmt.Println(" ", cert.Subject)
+			if debug {
+				fmt.Println(" ", cert.Subject)
+			}
 			pool.AddCert(cert)
 		}
 		raw = rest
