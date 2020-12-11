@@ -1,10 +1,13 @@
 # SSL Forwarder
 Super simple ssl forwarder that does one thing, exposes and end point, establishes a connection, then creates a new ssl connection going into the infrastructure.
 
-# Why would I care to use this?
-* Need to sign the connection with a client certificate
-* Need to inter-connect IPv4 to IPv6 or vice versa
-
+# Why would I care to use this?  Should you need to...
+* Sign a connection with a client certificate, mutual TLS, without rewriting an app
+* Inter-connect IPv4 to IPv6 or vice versa - listen on ":443" and point to your IPv4/6 service
+* Upgrade a client to a newer version of TLS or enable TLS on an app without TLS support - point the app to this app configured as an HTTP endpoint and outgoing becomes TLS
+* Fix MTU issues across network boundary / boundaries - repackage the packets on the fly without the client needing to "find" the correct MTU, allow the network interface to dictate this
+* Improve latency in long distance connections when a local link (such as WiFi) has packet loss - place this on the boundary on the immediate other side
+* Automate certificate rotations on outgoing connections when the client apps cannot be taken offline / continuity of operations - make a self signed long term cert and then rotate the cert with this
 
 # Usage
 To run the forwarder, listening on the default port :8080 use
