@@ -32,24 +32,33 @@ docker pull pschou/ssl-forwarder:0.1
 
 Help context
 ```
-$ ./ssl-forwarder  -h
-Very simple SSL forwarder, written by Paul Schou github@paulschou.com
+$ ./ssl-forwarder -h
+Very simple SSL forwarder, written by Paul Schou github@paulschou.com in December 2020
+If you find this useful, please hit me up and let me know.
 
  Usage of ./ssl-forwarder:
   -ca string
-        File to load with ROOT CAs (default "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem")
+    	File to load with ROOT CAs - reloaded every minute by adding any new entries (default "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem")
   -cert string
-        File to load with CERT (default "/etc/pki/server.pem")
+    	File to load with CERT - automatically reloaded every minute (default "/etc/pki/server.pem")
+  -debug
+    	Verbose output
   -host string
-        Hostname to verify outgoing connection with
+    	Hostname to verify outgoing connection with
   -key string
-        File to load with KEY (default "/etc/pki/server.pem")
+    	File to load with KEY - automatically reloaded every minute (default "/etc/pki/server.pem")
   -listen string
-        Listen address for forwarder (default ":7443")
+    	Listen address for forwarder (default ":7443")
+  -secure-client
+    	Enforce TLS 1.2 on client side (default true)
+  -secure-server
+    	Enforce TLS 1.2 on server side (default true)
   -target string
-        Sending address for forwarder (default "127.0.0.1:443")
+    	Sending address for forwarder (default "127.0.0.1:443")
   -tls
-        Enable listener TLS (default true)
-  -tls_verify
-        Verify TLS or disable all checks (default true)
+    	Enable listener TLS (default true)
+  -verify-client
+    	Verify or disable client certificate check (default true)
+  -verify-server
+    	Verify or disable server certificate check (default true)
 ```
