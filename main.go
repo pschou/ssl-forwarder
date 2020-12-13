@@ -84,7 +84,7 @@ func loadKeys() {
 
 func main() {
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Very simple SSL forwarder, written by Paul Schou github@paulschou.com in December 2020\nIf you find this useful, please hit me up and let me know.\n\n Usage of %s:\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Simple SSL forwarder, written by Paul Schou github@paulschou.com in December 2020\nAll rights reserved, personal use only, provided AS-IS -- not responsible for loss.\nUsage implies agreement.  For requests or support, please contact above.\n\n Usage of %s:\n", os.Args[0])
 		flag.PrintDefaults()
 	}
 	var listen = flag.String("listen", ":7443", "Listen address for forwarder")
@@ -123,10 +123,10 @@ func main() {
 	var l net.Listener
 	if *tls_enabled {
 		var config tls.Config
-		if *secure_client {
+		if *secure_server {
 			config = tls.Config{RootCAs: rootpool,
 				Certificates: []tls.Certificate{},
-				ClientCAs:    rootpool, InsecureSkipVerify: *verify_client == false,
+				ClientCAs:    rootpool, InsecureSkipVerify: *verify_server == false,
 				MinVersion:               tls.VersionTLS12,
 				CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
 				PreferServerCipherSuites: true,
@@ -139,7 +139,7 @@ func main() {
 			}
 		} else {
 			config = tls.Config{RootCAs: rootpool,
-				ClientCAs: rootpool, InsecureSkipVerify: *verify_client == false}
+				ClientCAs: rootpool, InsecureSkipVerify: *verify_server == false}
 		}
 		config.GetCertificate = func(clientHello *tls.ClientHelloInfo) (*tls.Certificate, error) {
 			if debug {
@@ -185,7 +185,7 @@ func main() {
 			defer conn.Close()
 			defer c.Close()
 			var tlsConfig *tls.Config
-			if *secure_server {
+			if *secure_client {
 				tlsConfig = &tls.Config{Certificates: []tls.Certificate{*keypair}, RootCAs: rootpool,
 					ClientCAs: rootpool, InsecureSkipVerify: *verify_client == false, ServerName: *tls_host,
 					MinVersion:               tls.VersionTLS12,
@@ -200,7 +200,7 @@ func main() {
 				}
 			} else {
 				tlsConfig = &tls.Config{Certificates: []tls.Certificate{*keypair}, RootCAs: rootpool,
-					ClientCAs: rootpool, InsecureSkipVerify: *verify_server == false, ServerName: *tls_host}
+					ClientCAs: rootpool, InsecureSkipVerify: *verify_client == false, ServerName: *tls_host}
 			}
 
 			if debug {
