@@ -203,6 +203,8 @@ func main() {
 					ClientCAs: rootpool, InsecureSkipVerify: *verify_client == false, ServerName: *tls_host}
 			}
 
+			tlsConfig.Rand = rand.Reader
+
 			if debug {
 				log.Println("dialing endpoint:", target_addr)
 			}
