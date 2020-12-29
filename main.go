@@ -84,7 +84,7 @@ func loadKeys() {
 
 func main() {
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Simple SSL forwarder, written by Paul Schou github@paulschou.com in December 2020\nAll rights reserved, personal use only, provided AS-IS -- not responsible for loss.\nUsage implies agreement.  For requests or support, please contact above.\n\n Usage of %s:\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Simple SSL forwarder, written by Paul Schou github@paulschou.com in December 2020\nAll rights reserved, personal use only, provided AS-IS -- not responsible for loss.\nUsage implies agreement.\n\n Usage of %s:\n", os.Args[0])
 		flag.PrintDefaults()
 	}
 	var listen = flag.String("listen", ":7443", "Listen address for forwarder")
