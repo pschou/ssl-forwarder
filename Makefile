@@ -1,10 +1,12 @@
 PROG_NAME := "ssl-forwarder"
 IMAGE_NAME := "pschou/ssl-forwarder"
 VERSION := "0.1"
+FLAGS := "-s -w"
 
 
 build:
-	CGO_ENABLED=0 go build -o ${PROG_NAME} main.go
+	CGO_ENABLED=0 go build -ldflags=${FLAGS} -o ${PROG_NAME} main.go
+	upx --lzma ${PROG_NAME}
 
 docker:
 	docker build -f Dockerfile --tag ${IMAGE_NAME}:${VERSION} .
