@@ -2,7 +2,7 @@
 //  This package was written by Paul Schou in Dec 2020
 //
 //  Originally intended to help with linking two apps together and expanded to be a general
-//    FOSS software for use to link apps together that usually don't do mTLS (mutual TLS)
+//    open source software for use to link apps together that usually don't do mTLS (mutual TLS)
 //
 package main
 
