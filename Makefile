@@ -1,7 +1,7 @@
 PROG_NAME := "ssl-forwarder"
 IMAGE_NAME := "pschou/ssl-forwarder"
-VERSION := "0.1"
-FLAGS := "-s -w"
+VERSION = 0.1.$(shell date +%Y%m%d.%H%M)
+FLAGS := "-s -w -X main.version=${VERSION}"
 
 
 build:
