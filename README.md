@@ -33,8 +33,9 @@ docker pull pschou/ssl-forwarder:0.1
 Help context
 ```
 $ ./ssl-forwarder -h
-Very simple SSL forwarder, written by Paul Schou github@paulschou.com in December 2020
-If you find this useful, please hit me up and let me know.
+Simple SSL forwarder, written by Paul Schou (github.com/pschou/ssl-forwarder) in December 2020
+All rights reserved, personal use only, provided AS-IS -- not responsible for loss.
+Usage implies agreement.
 
 Usage: ./ssl-forwarder [options...]
 
