@@ -11,8 +11,8 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
-	"flag"
 	"fmt"
+	"github.com/pschou/go-params"
 	"io"
 	"io/ioutil"
 	"log"
@@ -84,23 +84,27 @@ func loadKeys() {
 }
 
 func main() {
-	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Simple SSL forwarder, written by Paul Schou github@paulschou.com in December 2020\nAll rights reserved, personal use only, provided AS-IS -- not responsible for loss.\nUsage implies agreement.  Version: %s\n\n Usage of %s:\n", version, os.Args[0])
-		flag.PrintDefaults()
+	params.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Simple SSL forwarder, written by Paul Schou github@paulschou.com in December 2020\nAll rights reserved, personal use only, provided AS-IS -- not responsible for loss.\nUsage implies agreement.  Version: %s\n\nUsage: %s [options...]\n\n", version, os.Args[0])
+		params.PrintDefaults()
 	}
-	var listen = flag.String("listen", ":7443", "Listen address for forwarder")
-	var target = flag.String("target", "127.0.0.1:443", "Sending address for forwarder")
-	var cert_file = flag.String("cert", "/etc/pki/server.pem", "File to load with CERT - automatically reloaded every minute")
-	var key_file = flag.String("key", "/etc/pki/server.pem", "File to load with KEY - automatically reloaded every minute")
-	var root_file = flag.String("ca", "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem", "File to load with ROOT CAs - reloaded every minute by adding any new entries")
-	var verify_client = flag.Bool("verify-client", true, "Verify or disable client certificate check")
-	var verify_server = flag.Bool("verify-server", true, "Verify or disable server certificate check")
-	var secure_client = flag.Bool("secure-client", true, "Enforce minimum of TLS 1.2 on client side")
-	var secure_server = flag.Bool("secure-server", true, "Enforce minimum of TLS 1.2 on server side")
-	var tls_enabled = flag.Bool("tls", true, "Enable listener TLS")
-	var tls_host = flag.String("host", "", "Hostname to verify outgoing connection with")
-	var verbose = flag.Bool("debug", false, "Verbose output")
-	flag.Parse()
+	var tls_enabled = params.Bool("tls", true, "Enable listener TLS", "BOOL")
+	var verbose = params.Pres("debug", "Verbose output")
+	params.GroupingSet("Listener")
+	var listen = params.String("listen", ":7443", "Listen address for forwarder", "HOST:PORT")
+	var verify_server = params.Bool("verify-server", true, "Verify server, do certificate checks", "BOOL")
+	var secure_server = params.Bool("secure-server", true, "Enforce minimum of TLS 1.2 on server side", "BOOL")
+	params.GroupingSet("Target")
+	var target = params.String("target", "127.0.0.1:443", "Sending address for forwarder", "HOST:PORT")
+	var verify_client = params.Bool("verify-client", true, "Verify client, do certificate checks", "BOOL")
+	var secure_client = params.Bool("secure-client", true, "Enforce minimum of TLS 1.2 on client side", "BOOL")
+	var tls_host = params.String("host", "", "Hostname to verify outgoing connection with", "FQDN")
+	params.GroupingSet("Certificate")
+	var cert_file = params.String("cert", "/etc/pki/server.pem", "File to load with CERT - automatically reloaded every minute\n", "FILE")
+	var key_file = params.String("key", "/etc/pki/server.pem", "File to load with KEY - automatically reloaded every minute\n", "FILE")
+	var root_file = params.String("ca", "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem", "File to load with ROOT CAs - reloaded every minute by adding any new entries\n", "FILE")
+	params.CommandLine.Indent = 2
+	params.Parse()
 
 	var err error
 	debug = *verbose
