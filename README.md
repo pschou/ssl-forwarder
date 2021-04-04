@@ -36,29 +36,25 @@ $ ./ssl-forwarder -h
 Very simple SSL forwarder, written by Paul Schou github@paulschou.com in December 2020
 If you find this useful, please hit me up and let me know.
 
- Usage of ./ssl-forwarder:
-  -ca string
-    	File to load with ROOT CAs - reloaded every minute by adding any new entries (default "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem")
-  -cert string
-    	File to load with CERT - automatically reloaded every minute (default "/etc/pki/server.pem")
-  -debug
-    	Verbose output
-  -host string
-    	Hostname to verify outgoing connection with
-  -key string
-    	File to load with KEY - automatically reloaded every minute (default "/etc/pki/server.pem")
-  -listen string
-    	Listen address for forwarder (default ":7443")
-  -secure-client
-    	Enforce TLS 1.2 on client side (default true)
-  -secure-server
-    	Enforce TLS 1.2 on server side (default true)
-  -target string
-    	Sending address for forwarder (default "127.0.0.1:443")
-  -tls
-    	Enable listener TLS (default true)
-  -verify-client
-    	Verify or disable client certificate check (default true)
-  -verify-server
-    	Verify or disable server certificate check (default true)
+Usage: ./ssl-forwarder [options...]
+
+Options:
+  --debug                 Verbose output
+  --tls BOOL              Enable listener TLS  (Default: true)
+Listener options:
+  --listen HOST:PORT      Listen address for forwarder  (Default: ":7443")
+  --secure-server BOOL    Enforce minimum of TLS 1.2 on server side  (Default: true)
+  --verify-server BOOL    Verify server, do certificate checks  (Default: true)
+Target options:
+  --host FQDN             Hostname to verify outgoing connection with  (Default: "")
+  --secure-client BOOL    Enforce minimum of TLS 1.2 on client side  (Default: true)
+  --target HOST:PORT      Sending address for forwarder  (Default: "127.0.0.1:443")
+  --verify-client BOOL    Verify client, do certificate checks  (Default: true)
+Certificate options:
+  --ca FILE               File to load with ROOT CAs - reloaded every minute by adding any new entries
+                            (Default: "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem")
+  --cert FILE             File to load with CERT - automatically reloaded every minute
+                            (Default: "/etc/pki/server.pem")
+  --key FILE              File to load with KEY - automatically reloaded every minute
+                            (Default: "/etc/pki/server.pem")
 ```
