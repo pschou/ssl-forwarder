@@ -1,13 +1,14 @@
 # SSL Forwarder
-Super simple ssl forwarder that does one thing, exposes and end point, establishes a connection, then creates a new ssl connection going into the infrastructure.
+Super simple SSL forwarder that does one thing exposes an endpoint, establishes a connection, then creates a new SSL connection going into the infrastructure.
 
 # Why would I care to use this?  Should you need to...
 * Sign a connection with a client certificate, mutual TLS, without rewriting an app
 * Inter-connect IPv4 to IPv6 or vice versa - listen on ":443" and point to your IPv4/6 service
-* Upgrade a client to a newer version of TLS or enable TLS on an app without TLS support - point the app to this app configured as an HTTP endpoint and outgoing becomes TLS
-* Fix MTU issues across network boundary / boundaries - repackage the packets on the fly without the client needing to "find" the correct MTU, allow the network interface to dictate this
-* Improve latency in long distance connections when a local link (such as WiFi) has packet loss - place this on the boundary on the immediate other side
-* Automate certificate rotations on outgoing connections when the client apps cannot be taken offline / continuity of operations - make a self signed long term cert and then rotate the cert with this
+* Upgrade a client to a newer version of TLS or enable TLS on an app without TLS support - point the app to this app configured as an HTTP endpoint, and outgoing becomes TLS
+* Fix MTU issues across network boundary/boundaries - repackage the packets on the fly without the client needing to "find" the correct MTU, allow the network interface to dictate this
+* Improve latency in long-distance connections when a local link (such as WiFi) has packet loss - place this on the boundary on the immediate other side
+* Automate certificate rotations on outgoing connections when the client apps cannot be taken offline / continuity of operations - make a self-signed long term cert and then rotate the cert with this
+* Upgrade a one-way SSL session to a two-way SSL session.
 
 # Usage
 To run the forwarder, listening on the default port :8080 use
