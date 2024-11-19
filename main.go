@@ -1,9 +1,6 @@
-//
-//  This package was written by Paul Schou in Dec 2020
-//
-//  Originally intended to help with linking two apps together and expanded to be a general
-//    open source software for use to link apps together that usually don't do mTLS (mutual TLS)
-//
+// Intended to help with linking two apps together and expanded to be a
+// general open source software for use to link apps together that usually
+// don't do mTLS (mutual TLS)
 package main
 
 import (
@@ -12,7 +9,6 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
-	"github.com/pschou/go-params"
 	"io"
 	"io/ioutil"
 	"log"
@@ -20,6 +16,8 @@ import (
 	"os"
 	"sync"
 	"time"
+
+	"github.com/pschou/go-params"
 )
 
 type DNS struct {
@@ -49,12 +47,12 @@ func loadKeys() {
 	tmp_key, err_k := tls.LoadX509KeyPair(certFile, keyFile)
 	if err_k != nil {
 		if keypair == nil {
-			log.Fatalf("failed to loadkey pair: %s", err)
+			log.Fatalf("failed to loadkey pair, check that the cert file has a public key and the key file has a private key.\npublic: %s\nprivate: %s", certFile, keyFile)
 		}
 		keypair_count++
 		log.Println("WARNING: Cannot load keypair (cert/key)", certFile, keyFile, "attempt:", keypair_count)
 		if keypair_count > 10 {
-			log.Fatalf("failed to loadkey pair: %s", err)
+			log.Fatalf("failed to loadkey pair, check that the cert file has a public key and the key file has a private key.\npublic: %s\nprivate: %s", certFile, keyFile)
 		}
 	} else {
 		if debug {
@@ -85,7 +83,7 @@ func loadKeys() {
 
 func main() {
 	params.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Simple SSL forwarder, written by Paul Schou github@paulschou.com in December 2020\nAll rights reserved, personal use only, provided AS-IS -- not responsible for loss.\nUsage implies agreement.  Version: %s\n\nUsage: %s [options...]\n\n", version, os.Args[0])
+		fmt.Fprintf(os.Stderr, "Simple SSL forwarder (github.com/pschou/ssl-forwarder) December 2020\nAll rights reserved, personal use only, provided AS-IS -- not responsible for loss.\nUsage implies agreement.  Version: %s\n\nUsage: %s [options...]\n\n", version, os.Args[0])
 		params.PrintDefaults()
 	}
 	var tls_enabled = params.Bool("tls", true, "Enable listener TLS", "BOOL")
@@ -134,6 +132,7 @@ func main() {
 				ClientCAs:    rootpool, InsecureSkipVerify: *verify_server == false,
 				MinVersion:               tls.VersionTLS12,
 				CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
+				Renegotiation:            tls.RenegotiateOnceAsClient,
 				PreferServerCipherSuites: true,
 				CipherSuites: []uint16{
 					tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
